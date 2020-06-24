@@ -4,12 +4,17 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import id.co.springredditclone.dto.AuthenticationResponse;
+import id.co.springredditclone.dto.LoginRequest;
 import id.co.springredditclone.dto.RegisterRequest;
 import id.co.springredditclone.exceptions.SpringRedditException;
 import id.co.springredditclone.model.NotificationEmail;
@@ -17,21 +22,19 @@ import id.co.springredditclone.model.User;
 import id.co.springredditclone.model.VerificationToken;
 import id.co.springredditclone.repository.UserRepository;
 import id.co.springredditclone.repository.VerificationTokenRepository;
+import id.co.springredditclone.security.JwtProvider;
+import lombok.AllArgsConstructor;
 
 @Service
+@AllArgsConstructor
 public class AuthService {
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-
-	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
-	private VerificationTokenRepository verificationTokenRepository;
-
-	@Autowired
-	private MailService mailService;
+	private final PasswordEncoder passwordEncoder;
+	private final UserRepository userRepository;
+	private final VerificationTokenRepository verificationTokenRepository;
+	private final MailService mailService;
+	private final AuthenticationManager authenticationManager;
+	private final JwtProvider jwtProvider;
 
 	@Transactional
 	public void signup(RegisterRequest registerRequest) {
@@ -47,7 +50,8 @@ public class AuthService {
 		String token = generateVerificationToken(user);
 
 		mailService.sendMail(new NotificationEmail("Please Activate your Account", user.getEmail(),
-				"Thank you for signing up to Spring Reddit, " + "please click on below url to activate your account: "
+				"Thank you for signing up to Spring Reddit, "
+						+ "please click on below url to activate your account: "
 						+ "http://localhost:8080/api/auth/accountVerification/" + token));
 
 	}
@@ -65,7 +69,8 @@ public class AuthService {
 	}
 
 	public void verifyAccount(String token) {
-		Optional<VerificationToken> verficationToken = verificationTokenRepository.findByToken(token);
+		Optional<VerificationToken> verficationToken = verificationTokenRepository
+				.findByToken(token);
 		verficationToken.orElseThrow(() -> new SpringRedditException("Invalid Token"));
 		fetchUserAndEnable(verficationToken.get());
 
@@ -74,10 +79,20 @@ public class AuthService {
 	@Transactional
 	private void fetchUserAndEnable(VerificationToken verificationToken) {
 		String username = verificationToken.getUser().getUsername();
-		User user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new SpringRedditException("User not found with name - " + username));
+		User user = userRepository.findByUsername(username).orElseThrow(
+				() -> new SpringRedditException("User not found with name - " + username));
 
 		user.setEnabled(true);
 		userRepository.save(user);
+	}
+
+	public AuthenticationResponse login(LoginRequest loginRequest) {
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+						loginRequest.getPassword()));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String token = jwtProvider.generateToken(authentication);
+		return new AuthenticationResponse(token, loginRequest.getUsername());
 	}
 }
