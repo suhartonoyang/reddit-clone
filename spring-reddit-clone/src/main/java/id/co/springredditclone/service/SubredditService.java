@@ -1,5 +1,6 @@
 package id.co.springredditclone.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,14 +22,14 @@ public class SubredditService {
 
 	@Transactional
 	public SubredditDto save(SubredditDto subredditDto) {
-		Subreddit subreddit = subredditRepository.save(mapSubredditDto(subredditDto));
+		Subreddit subreddit = subredditRepository.save(mapToSubreddit(subredditDto));
 		subredditDto.setId(subreddit.getId());
 		return subredditDto;
 	}
 
-	private Subreddit mapSubredditDto(SubredditDto subredditDto) {
+	private Subreddit mapToSubreddit(SubredditDto subredditDto) {
 		return Subreddit.builder().name(subredditDto.getName())
-				.description(subredditDto.getDescription()).build();
+				.description(subredditDto.getDescription()).createdDate(Instant.now()).build();
 
 	}
 

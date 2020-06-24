@@ -1,6 +1,5 @@
 package id.co.springredditclone.security;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -32,8 +31,7 @@ public class JwtProvider {
 			keyStore = KeyStore.getInstance("JKS");
 			InputStream resourceAsStream = getClass().getResourceAsStream("/springblog.jks");
 			keyStore.load(resourceAsStream, "secret".toCharArray());
-		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException
-				| IOException e) {
+		} catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
 			throw new SpringRedditException("Exception occured while loading keystore ");
 		}
 	}
@@ -47,8 +45,7 @@ public class JwtProvider {
 		try {
 			return (PrivateKey) keyStore.getKey("springblog", "secret".toCharArray());
 		} catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
-			throw new SpringRedditException(
-					"Exception occured while retireving public key from keystore");
+			throw new SpringRedditException("Exception occured while retireving public key from keystore");
 		}
 	}
 
@@ -59,10 +56,9 @@ public class JwtProvider {
 
 	private PublicKey getPublicKey() {
 		try {
-			return keyStore.getCertificate("springblog_public_cert").getPublicKey();
+			return keyStore.getCertificate("springblog").getPublicKey();
 		} catch (KeyStoreException e) {
-			throw new SpringRedditException(
-					"Exception occured while retrieving public key from keystore");
+			throw new SpringRedditException("Exception occured while retrieving public key from keystore");
 		}
 	}
 

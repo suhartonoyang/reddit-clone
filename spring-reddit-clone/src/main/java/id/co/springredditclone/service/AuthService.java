@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,6 +36,8 @@ public class AuthService {
 	private final AuthenticationManager authenticationManager;
 	private final JwtProvider jwtProvider;
 
+	private final Environment environment;
+
 	@Transactional
 	public void signup(RegisterRequest registerRequest) {
 		User user = new User();
@@ -44,15 +46,13 @@ public class AuthService {
 		user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 		user.setCreated(Instant.now());
 		user.setEnabled(false);
-
 		userRepository.save(user);
 
 		String token = generateVerificationToken(user);
-
 		mailService.sendMail(new NotificationEmail("Please Activate your Account", user.getEmail(),
 				"Thank you for signing up to Spring Reddit, "
 						+ "please click on below url to activate your account: "
-						+ "http://localhost:8080/api/auth/accountVerification/" + token));
+						+ environment.getProperty("account.verification.url") + token));
 
 	}
 
