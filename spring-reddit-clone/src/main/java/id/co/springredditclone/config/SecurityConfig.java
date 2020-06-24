@@ -31,11 +31,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
-//	@Override
-//	protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-//		authenticationManagerBuilder.userDetailsService(userDetailService).passwordEncoder(passwordEncoder());
-//	}
-
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder)
 			throws Exception {
