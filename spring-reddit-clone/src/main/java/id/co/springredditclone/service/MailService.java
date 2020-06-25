@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import id.co.springredditclone.exceptions.SpringRedditException;
 import id.co.springredditclone.model.NotificationEmail;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -34,10 +33,10 @@ public class MailService {
 
 		try {
 			mailSender.send(messagePreparator);
-			log.info("Activation email sent!!");
+			log.info("Email sent successfully!!");
 		} catch (MailException e) {
-			throw new SpringRedditException("Exception occured when sending mail to " + notificationEmail.getRecipient()
-					+ " - " + e.getLocalizedMessage());
+			throw new SpringRedditException("Exception occured when sending mail to "
+					+ notificationEmail.getRecipient() + " - " + e.getLocalizedMessage());
 		}
 	}
 }

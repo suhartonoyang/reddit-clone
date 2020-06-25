@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import id.co.springredditclone.dto.PostRequest;
 import id.co.springredditclone.dto.PostResponse;
 import id.co.springredditclone.exceptions.PostNotFoundException;
-import id.co.springredditclone.exceptions.SpringRedditException;
 import id.co.springredditclone.exceptions.SubredditNotFoundException;
 import id.co.springredditclone.mapper.PostMapper;
 import id.co.springredditclone.model.Post;
@@ -37,7 +36,7 @@ public class PostService {
 	public void save(PostRequest postRequest) {
 		Subreddit subreddit = subredditRepository.findByName(postRequest.getSubredditName())
 				.orElseThrow(() -> new SubredditNotFoundException(
-						postRequest.getSubredditName() + " not found"));
+						"Subreddit ID: " + postRequest.getSubredditName() + " not found"));
 
 		postRepository
 				.save(postMapper.mapToPost(postRequest, subreddit, authService.getCurrentUser()));
@@ -51,15 +50,16 @@ public class PostService {
 
 	@Transactional(readOnly = true)
 	public PostResponse getPost(Long postId) {
-		Post post = postRepository.findById(postId)
-				.orElseThrow(() -> new PostNotFoundException(postId.toString() + " not found"));
+		Post post = postRepository.findById(postId).orElseThrow(
+				() -> new PostNotFoundException("Post ID: " + postId.toString() + " not found"));
 
 		return postMapper.mapToPostResponse(post);
 	}
 
 	public List<PostResponse> getPostsBySubreddit(Long subredditId) {
-		Subreddit subreddit = subredditRepository.findById(subredditId).orElseThrow(
-				() -> new SubredditNotFoundException(subredditId.toString() + " not found"));
+		Subreddit subreddit = subredditRepository.findById(subredditId)
+				.orElseThrow(() -> new SubredditNotFoundException(
+						"Subreddit ID: " + subredditId.toString() + " not found"));
 
 		List<Post> posts = postRepository.findAllBySubreddit(subreddit);
 
@@ -67,8 +67,8 @@ public class PostService {
 	}
 
 	public List<PostResponse> getPostsByUsername(String username) {
-		User user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException(username + " not found"));
+		User user = userRepository.findByUsername(username).orElseThrow(
+				() -> new UsernameNotFoundException("Username : " + username + " not found"));
 
 		return postRepository.findByUser(user).stream().map(postMapper::mapToPostResponse)
 				.collect(Collectors.toList());

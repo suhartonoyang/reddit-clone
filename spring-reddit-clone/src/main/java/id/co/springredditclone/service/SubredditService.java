@@ -1,6 +1,5 @@
 package id.co.springredditclone.service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,10 +22,14 @@ public class SubredditService {
 	private final SubredditRepository subredditRepository;
 	private final SubredditMapper subredditMapper;
 
+	private final AuthService authService;
+
 	@Transactional
 	public SubredditDto save(SubredditDto subredditDto) {
-		Subreddit subreddit = subredditRepository
-				.save(subredditMapper.mapDtoToSubreddit(subredditDto));
+		Subreddit subreddit = subredditMapper.mapDtoToSubreddit(subredditDto,
+				authService.getCurrentUser());
+		subredditRepository.save(subreddit);
+
 		subredditDto.setId(subreddit.getId());
 		return subredditDto;
 	}
@@ -50,7 +53,7 @@ public class SubredditService {
 
 	public SubredditDto getSubreddit(Long id) {
 		Subreddit subreddit = subredditRepository.findById(id)
-				.orElseThrow(() -> new SpringRedditException("No subreddit found with ID - " + id));
+				.orElseThrow(() -> new SpringRedditException("Subreddit ID: " + id));
 
 		return subredditMapper.mapSubredditToDto(subreddit);
 	}

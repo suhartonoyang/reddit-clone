@@ -3,11 +3,13 @@ package id.co.springredditclone.model;
 import java.time.Instant;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
@@ -28,6 +30,7 @@ public class Subreddit {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 	@NotBlank(message = "Community name is required")
+	@Column(unique = true)
 	private String name;
 	@NotBlank(message = "Description is required")
 	private String description;
@@ -37,6 +40,7 @@ public class Subreddit {
 	private List<Post> posts;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "userId", referencedColumnName = "userId")
 	private User user;
 
 }

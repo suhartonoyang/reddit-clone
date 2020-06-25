@@ -9,7 +9,7 @@ import id.co.springredditclone.model.Post;
 import id.co.springredditclone.model.User;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-	List<Comment> findByPost(Post post);
+	List<Comment> findAllByPost(Post post);
 
 	List<Comment> findAllByUser(User user);
 }

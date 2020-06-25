@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 import id.co.springredditclone.dto.SubredditDto;
 import id.co.springredditclone.model.Post;
 import id.co.springredditclone.model.Subreddit;
+import id.co.springredditclone.model.User;
 
 @Mapper(componentModel = "spring")
 public interface SubredditMapper {
@@ -22,5 +23,9 @@ public interface SubredditMapper {
 
 	@InheritInverseConfiguration
 	@Mapping(target = "posts", ignore = true)
-	Subreddit mapDtoToSubreddit(SubredditDto subredditDto);
+	Subreddit mapDtoToSubreddit(SubredditDto subredditDto, User user);
+
+	default List<Post> getListPost() {
+		return null;
+	}
 }

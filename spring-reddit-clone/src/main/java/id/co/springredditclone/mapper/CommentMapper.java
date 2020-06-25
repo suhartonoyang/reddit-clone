@@ -1,7 +1,5 @@
 package id.co.springredditclone.mapper;
 
-import java.util.List;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -15,16 +13,13 @@ public interface CommentMapper {
 
 	@Mapping(target = "id", ignore = true)
 //	@Mapping(target = "text", source = "commentDto.text")
-	@Mapping(target ="createdDate", expression = "java(java.time.Instant.now())")
+	@Mapping(target = "createdDate", expression = "java(java.time.Instant.now())")
 	@Mapping(target = "post", source = "post")
 	@Mapping(target = "user", source = "user")
 	Comment mapToComment(CommentDto commentDto, Post post, User user);
-	
-	@Mapping(target = "postId", source = "java(comment.getPost().getPostId())")
-//	@Mapping(target = "username", source = "java(comment.getUser().getUsername())")
+
+	@Mapping(target = "postId", expression = "java(comment.getPost().getPostId())")
+	@Mapping(target = "username", expression = "java(comment.getUser().getUsername())")
 	CommentDto mapToCommentDto(Comment comment);
-	
-	default Long getPostId(Post post) {
-		return post.getPostId();
-	}
+
 }
