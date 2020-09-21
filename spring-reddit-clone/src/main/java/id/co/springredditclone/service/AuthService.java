@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -53,7 +54,8 @@ public class AuthService {
 
 		String token = generateVerificationToken(user);
 		mailService.sendMail(new NotificationEmail("Please Activate your Account", user.getEmail(),
-				"Thank you for signing up to Spring Reddit, " + "please click on below url to activate your account: "
+				"Thank you for signing up to Spring Reddit, "
+						+ "please click on below url to activate your account: "
 						+ environment.getProperty("account.verification.url") + token));
 
 	}
@@ -71,7 +73,8 @@ public class AuthService {
 	}
 
 	public void verifyAccount(String token) {
-		Optional<VerificationToken> verficationToken = verificationTokenRepository.findByToken(token);
+		Optional<VerificationToken> verficationToken = verificationTokenRepository
+				.findByToken(token);
 		verficationToken.orElseThrow(() -> new SpringRedditException("Invalid Token"));
 		fetchUserAndEnable(verficationToken.get());
 
@@ -80,16 +83,17 @@ public class AuthService {
 	@Transactional
 	private void fetchUserAndEnable(VerificationToken verificationToken) {
 		String username = verificationToken.getUser().getUsername();
-		User user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new SpringRedditException("User not found with name - " + username));
+		User user = userRepository.findByUsername(username).orElseThrow(
+				() -> new SpringRedditException("User not found with name - " + username));
 
 		user.setEnabled(true);
 		userRepository.save(user);
 	}
 
 	public AuthenticationResponse login(LoginRequest loginRequest) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+		Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+						loginRequest.getPassword()));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String token = jwtProvider.generateToken(authentication);
@@ -101,11 +105,11 @@ public class AuthService {
 
 	@Transactional(readOnly = true)
 	public User getCurrentUser() {
-		UserDetails principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext()
-				.getAuthentication().getPrincipal();
+		UserDetails principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder
+				.getContext().getAuthentication().getPrincipal();
 
-		return userRepository.findByUsername(principal.getUsername())
-				.orElseThrow(() -> new SpringRedditException("Username not found - " + principal.getUsername()));
+		return userRepository.findByUsername(principal.getUsername()).orElseThrow(
+				() -> new SpringRedditException("Username not found - " + principal.getUsername()));
 	}
 
 	public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
@@ -117,5 +121,11 @@ public class AuthService {
 				.expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
 				.username(refreshTokenRequest.getUsername()).build();
 
+	}
+
+	public boolean isLoggedIn() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return !(authentication instanceof AnonymousAuthenticationToken)
+				&& authentication.isAuthenticated();
 	}
 }

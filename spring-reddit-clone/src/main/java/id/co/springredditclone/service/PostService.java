@@ -40,6 +40,7 @@ public class PostService {
 
 		postRepository
 				.save(postMapper.mapToPost(postRequest, subreddit, authService.getCurrentUser()));
+		System.out.println("Insert Post Dua kali");
 	}
 
 	@Transactional(readOnly = true)

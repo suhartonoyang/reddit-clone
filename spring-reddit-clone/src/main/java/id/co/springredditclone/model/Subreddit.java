@@ -3,7 +3,6 @@ package id.co.springredditclone.model;
 import java.time.Instant;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,7 +29,7 @@ public class Subreddit {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 	@NotBlank(message = "Community name is required")
-	@Column(unique = true)
+//	@Column(unique = true)
 	private String name;
 	@NotBlank(message = "Description is required")
 	private String description;

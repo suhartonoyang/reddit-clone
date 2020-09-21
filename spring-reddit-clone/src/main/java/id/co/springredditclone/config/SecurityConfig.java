@@ -32,18 +32,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		authenticationManagerBuilder.userDetailsService(userDetailService).passwordEncoder(passwordEncoder());
+	public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder)
+			throws Exception {
+		authenticationManagerBuilder.userDetailsService(userDetailService)
+				.passwordEncoder(passwordEncoder());
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-				.authorizeRequests()
-				.antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources/**", "/configuration/security",
-						"/swagger-ui.html", "/webjars/**")
-				.permitAll().antMatchers("/api/auth/**").permitAll().antMatchers(HttpMethod.GET, "/api/subreddit")
-				.permitAll().anyRequest().authenticated();
+		http.cors().and().csrf().disable().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().headers()
+				.frameOptions().sameOrigin().and().authorizeRequests()
+				.antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources/**",
+						"/configuration/security", "/swagger-ui.html", "/webjars/**")
+				.permitAll().antMatchers("/api/auth/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/subreddit").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/posts/").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/comments/by-postId/**").permitAll().anyRequest()
+				.authenticated();
 
 		http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 	}
