@@ -32,7 +32,7 @@ export class AuthService {
 
   login(loginRequestPayload: LoginRequestPayload): Observable<boolean> {
     return this.httpClient
-      .post<LoginResponse>('/api/auth/login', loginRequestPayload)
+      .post<LoginResponse>('api/auth/login', loginRequestPayload)
       .pipe(
         map((data) => {
           this.localStorage.store(

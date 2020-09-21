@@ -65,6 +65,7 @@ export class LoginComponent implements OnInit {
       (error) => {
         this.toastr.error('Invalid username or password!');
         console.log('Login Failed');
+        console.log(error);
       }
     );
   }
